@@ -1,4 +1,8 @@
 const Event = require('../models/event');
+const User = require('../models/user');
+const pug = require('pug');
+const path = require('path');
+const transporter = require('../config/nodemailer');
 
 // Fetch all events (public)
 exports.getAllEvents = async (req, res) => {
@@ -22,6 +26,29 @@ exports.createEvent = async (req, res) => {
       userId: req.user.userId
     });
     await event.save();
+
+    // Fetch user details for email
+    const user = await User.findById(req.user.userId);
+
+    // Compile Pug template
+    const html = pug.renderFile(
+      path.join(__dirname, '../emails/eventCreated.pug'),
+      {
+        name: user.name,
+        title,
+        date: new Date(date).toLocaleString(),
+        location
+      }
+    );
+
+    // Send email using the shared transporter
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: 'Event Created: ' + title,
+      html
+    });
+
     res.status(201).json(event);
   } catch (err) {
     res.status(400).json({ message: 'Invalid event data' });

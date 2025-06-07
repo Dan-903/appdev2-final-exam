@@ -1,3 +1,4 @@
+# Ignore files and directories that should not be tracked by Git
 .env
 
 # Node.js dependencies

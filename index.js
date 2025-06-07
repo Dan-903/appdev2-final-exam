@@ -1,16 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 const PORT = process.env.PORT
-
-
-const app = express();
-
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send('API is running');
-});
 
 const connectDB = async () => {
   try {
@@ -23,6 +16,19 @@ const connectDB = async () => {
 }
 
 connectDB();
+
+const app = express();
+
+app.use(express.json());
+
+app.use('/api/auth', authRoutes);
+app.use('/api/events', eventRoutes);
+
+app.get('/', (req, res) => {
+  res.send('API is running');
+});
+
+
 
 // Start server
 app.listen(PORT, () => {
